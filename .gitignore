@@ -1,0 +1,9 @@
+# Nested duplicate directory
+hackdynasty-premium/
+
+# OS and Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
