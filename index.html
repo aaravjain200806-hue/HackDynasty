@@ -162,7 +162,12 @@
 
         html {
             scroll-behavior: smooth;
+            scroll-padding-top: 80px;
             font-size: 16px;
+        }
+
+        section {
+            scroll-margin-top: 80px;
         }
 
         body {
@@ -1358,6 +1363,15 @@
         }
 
         @media (max-width: 768px) {
+            #constellation-canvas {
+                display: none !important;
+            }
+
+            section {
+                padding: 80px 5%;
+                scroll-margin-top: 70px;
+            }
+
             .navbar {
                 padding: 1rem 1.5rem;
             }
@@ -1368,18 +1382,26 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: rgba(10, 10, 26, 0.98);
+                background: rgba(10, 5, 20, 0.98);
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
                 gap: 2rem;
                 transform: translateX(100%);
-                transition: transform 0.4s var(--transition-smooth);
-                backdrop-filter: blur(20px);
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.35s;
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                z-index: 1000;
             }
 
             .nav-links.active {
                 transform: translateX(0);
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
             }
 
             .nav-links a {
@@ -1415,6 +1437,38 @@
             .contact-card,
             .contact-minimal-card {
                 padding: 1.75rem 1.25rem;
+            }
+
+            /* Ultra-smooth mobile reveals without horizontal overflow */
+            .reveal,
+            .reveal-left,
+            .reveal-right {
+                transform: translateY(20px) !important;
+                transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            }
+
+            .reveal.active,
+            .reveal-left.active,
+            .reveal-right.active {
+                opacity: 1 !important;
+                transform: translateY(0) !important;
+            }
+
+            /* Lightweight GPU layers for smooth mobile scrolling */
+            .project-card,
+            .member-card,
+            .stat-card,
+            .about-card,
+            .contact-minimal-card {
+                backdrop-filter: blur(8px) !important;
+                -webkit-backdrop-filter: blur(8px) !important;
+                background: rgba(14, 3, 20, 0.9) !important;
+                touch-action: pan-y;
+            }
+
+            .project-card:hover,
+            .member-card:hover {
+                transform: none !important;
             }
         }
 
@@ -1561,7 +1615,7 @@
                     <div class="w-10 h-10 mx-auto mb-3 rounded-xl bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-300">
                         <i data-lucide="users" class="w-5 h-5"></i>
                     </div>
-                    <div class="text-3xl sm:text-4xl font-black text-white stat-number" data-target="4">0</div>
+                    <div class="text-3xl sm:text-4xl font-black text-white stat-number" data-target="4" data-suffix="">0</div>
                     <div class="text-xs font-semibold uppercase tracking-wider text-slate-400 mt-1">Core Founders</div>
                 </div>
 
@@ -2002,12 +2056,6 @@
                         <path d="m13.736 5.853 4.005-4.117 2.325 2.38-4.2 4.354h5.908v3.297h-5.908l4.2 4.354-2.325 2.38-4.005-4.117v7.685h-3.472v-7.685l-4.005 4.117-2.325-2.38 4.2-4.354H2.226V8.47h5.908l-4.2-4.354 2.325-2.38 4.005 4.117V0h3.472v5.853z"/>
                     </svg>
                 </a>
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer" title="GitHub">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" title="LinkedIn">
-                    <i class="fab fa-linkedin-in"></i>
-                </a>
                 <a href="mailto:teamhackdynasty@gmail.com" title="Email">
                     <i class="fas fa-envelope"></i>
                 </a>
@@ -2124,6 +2172,7 @@
         class SpaceScroll {
             constructor() {
                 this.canvas = document.getElementById('space-scroll-canvas');
+                if (!this.canvas) return;
                 this.ctx = this.canvas.getContext('2d');
                 this.scrollY = window.scrollY;
                 this.targetScrollY = window.scrollY;
@@ -2132,24 +2181,37 @@
                 this.time = 0;
                 this.shootingStars = [];
                 this.nextShootAt = 2000 + Math.random() * 3000;
+                this.isMobile = window.innerWidth <= 768;
 
-                this.layers = [
-                    { depth: 0.05, count: 175, minR: 0.7, maxR: 1.8, color: '255,255,255', twinkle: true, streak: false },
-                    { depth: 0.15, count: 85,  minR: 1.1, maxR: 2.3, color: '220,130,255', twinkle: true, streak: true },
-                    { depth: 0.32, count: 50,  minR: 1.5, maxR: 3.0, color: '184,70,230',  twinkle: true, streak: true }
-                ];
-
+                this.setupLayers();
                 this.resize();
                 this.generateStars();
                 this.bindEvents();
                 requestAnimationFrame((t) => this.animate(t));
             }
 
+            setupLayers() {
+                this.isMobile = window.innerWidth <= 768;
+                this.layers = this.isMobile ? [
+                    { depth: 0.05, count: 35, minR: 0.7, maxR: 1.4, color: '255,255,255', twinkle: false, streak: false },
+                    { depth: 0.15, count: 20, minR: 1.0, maxR: 1.8, color: '220,130,255', twinkle: false, streak: false },
+                    { depth: 0.32, count: 12, minR: 1.2, maxR: 2.2, color: '184,70,230',  twinkle: false, streak: false }
+                ] : [
+                    { depth: 0.05, count: 175, minR: 0.7, maxR: 1.8, color: '255,255,255', twinkle: true, streak: false },
+                    { depth: 0.15, count: 85,  minR: 1.1, maxR: 2.3, color: '220,130,255', twinkle: true, streak: true },
+                    { depth: 0.32, count: 50,  minR: 1.5, maxR: 3.0, color: '184,70,230',  twinkle: true, streak: true }
+                ];
+            }
+
             bindEvents() {
                 window.addEventListener('resize', () => {
+                    const wasMobile = this.isMobile;
+                    this.setupLayers();
                     this.resize();
-                    this.generateStars();
-                });
+                    if (wasMobile !== this.isMobile) {
+                        this.generateStars();
+                    }
+                }, { passive: true });
                 window.addEventListener('scroll', () => {
                     this.targetScrollY = window.scrollY;
                 }, { passive: true });
@@ -2177,6 +2239,7 @@
             }
 
             spawnShootingStar() {
+                if (this.isMobile) return;
                 const startX = Math.random() * this.canvas.width * 0.7 + this.canvas.width * 0.15;
                 this.shootingStars.push({
                     x: startX,
@@ -2193,7 +2256,7 @@
                 this.lastTime = t;
                 this.time = t;
 
-                // Smoothed scroll + velocity (drives the "flying through space" streaks)
+                // Smoothed scroll + velocity
                 this.scrollY += (this.targetScrollY - this.scrollY) * 0.09;
                 this.velocity = this.scrollY - this.lastScrollY;
                 this.lastScrollY = this.scrollY;
@@ -2216,8 +2279,8 @@
                         const alpha = Math.min(1, 0.55 + 0.45 * twinkle);
 
                         ctx.beginPath();
-                        if (layer.streak && speedFactor > 0.05) {
-                            // stretch stars into light-speed streaks while scrolling fast
+                        if (layer.streak && speedFactor > 0.05 && !this.isMobile) {
+                            // stretch stars into light-speed streaks while scrolling fast (desktop)
                             const streakLen = star.r * 10 * speedFactor * (this.velocity < 0 ? -1 : 1);
                             ctx.strokeStyle = `rgba(${layer.color}, ${alpha})`;
                             ctx.lineWidth = star.r * 0.85;
@@ -2225,46 +2288,48 @@
                             ctx.lineTo(star.x, y - streakLen);
                             ctx.stroke();
                         } else {
-                            if (star.r > 2.0) {
+                            if (!this.isMobile && star.r > 2.0) {
                                 ctx.shadowBlur = 4;
                                 ctx.shadowColor = `rgba(${layer.color}, 0.7)`;
-                            } else {
-                                ctx.shadowBlur = 0;
                             }
                             ctx.fillStyle = `rgba(${layer.color}, ${alpha})`;
                             ctx.arc(star.x, y, star.r, 0, Math.PI * 2);
                             ctx.fill();
-                            ctx.shadowBlur = 0;
+                            if (!this.isMobile) {
+                                ctx.shadowBlur = 0;
+                            }
                         }
                     });
                 });
 
-                // Occasional shooting stars for extra depth
-                this.nextShootAt -= dt || 16;
-                if (this.nextShootAt <= 0) {
-                    this.spawnShootingStar();
-                    this.nextShootAt = 3000 + Math.random() * 4000;
+                // Shooting stars (desktop only)
+                if (!this.isMobile) {
+                    this.nextShootAt -= dt || 16;
+                    if (this.nextShootAt <= 0) {
+                        this.spawnShootingStar();
+                        this.nextShootAt = 3000 + Math.random() * 4000;
+                    }
+
+                    this.shootingStars.forEach(s => {
+                        ctx.save();
+                        const grad = ctx.createLinearGradient(s.x, s.y, s.x - s.vx * (s.len / 6), s.y - s.vy * (s.len / 6));
+                        grad.addColorStop(0, `rgba(255,255,255,${s.life})`);
+                        grad.addColorStop(0.7, `rgba(184,59,224,${s.life * 0.5})`);
+                        grad.addColorStop(1, 'rgba(143,18,181,0)');
+                        ctx.strokeStyle = grad;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(s.x, s.y);
+                        ctx.lineTo(s.x - s.vx * (s.len / 6), s.y - s.vy * (s.len / 6));
+                        ctx.stroke();
+                        ctx.restore();
+
+                        s.x += s.vx;
+                        s.y += s.vy;
+                        s.life -= 0.012;
+                    });
+                    this.shootingStars = this.shootingStars.filter(s => s.life > 0 && s.y < h + 100);
                 }
-
-                this.shootingStars.forEach(s => {
-                    ctx.save();
-                    const grad = ctx.createLinearGradient(s.x, s.y, s.x - s.vx * (s.len / 6), s.y - s.vy * (s.len / 6));
-                    grad.addColorStop(0, `rgba(255,255,255,${s.life})`);
-                    grad.addColorStop(0.7, `rgba(184,59,224,${s.life * 0.5})`);
-                    grad.addColorStop(1, 'rgba(143,18,181,0)');
-                    ctx.strokeStyle = grad;
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(s.x, s.y);
-                    ctx.lineTo(s.x - s.vx * (s.len / 6), s.y - s.vy * (s.len / 6));
-                    ctx.stroke();
-                    ctx.restore();
-
-                    s.x += s.vx;
-                    s.y += s.vy;
-                    s.life -= 0.012;
-                });
-                this.shootingStars = this.shootingStars.filter(s => s.life > 0 && s.y < h + 100);
 
                 requestAnimationFrame((t2) => this.animate(t2));
             }
@@ -2273,20 +2338,41 @@
         class ConstellationCanvas {
             constructor() {
                 this.canvas = document.getElementById('constellation-canvas');
+                if (!this.canvas) return;
                 this.ctx = this.canvas.getContext('2d');
                 this.particles = [];
                 this.mouse = { x: null, y: null };
                 this.particleCount = 85;
                 this.connectionDistance = 150;
                 this.animationId = null;
+                this.isRunning = false;
                 
-                this.init();
-                this.animate();
+                this.checkActive();
                 this.setupEventListeners();
+            }
+
+            checkActive() {
+                const shouldRun = window.innerWidth > 768 && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+                if (!shouldRun) {
+                    if (this.animationId) {
+                        cancelAnimationFrame(this.animationId);
+                        this.animationId = null;
+                    }
+                    this.isRunning = false;
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    return false;
+                }
+                if (!this.isRunning) {
+                    this.isRunning = true;
+                    this.init();
+                    this.animate();
+                }
+                return true;
             }
 
             init() {
                 this.resize();
+                this.particles = [];
                 
                 // Create particles
                 for (let i = 0; i < this.particleCount; i++) {
@@ -2310,14 +2396,16 @@
 
             setupEventListeners() {
                 window.addEventListener('resize', () => {
-                    this.resize();
-                    this.init();
-                });
+                    if (this.checkActive()) {
+                        this.resize();
+                    }
+                }, { passive: true });
 
                 window.addEventListener('mousemove', (e) => {
+                    if (!this.isRunning) return;
                     this.mouse.x = e.clientX;
                     this.mouse.y = e.clientY;
-                });
+                }, { passive: true });
 
                 window.addEventListener('mouseout', () => {
                     this.mouse.x = null;
@@ -2326,6 +2414,8 @@
             }
 
             animate() {
+                if (!this.isRunning) return;
+
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 
                 // Update and draw particles
@@ -2447,9 +2537,10 @@
         // ========================================
         class ScrollReveal {
             constructor() {
+                const isMobile = window.innerWidth <= 768;
                 this.options = {
-                    threshold: 0.1,
-                    rootMargin: '0px 0px -50px 0px'
+                    threshold: isMobile ? 0.05 : 0.1,
+                    rootMargin: isMobile ? '0px 0px -10px 0px' : '0px 0px -50px 0px'
                 };
                 this.observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
@@ -2463,18 +2554,29 @@
             }
 
             init() {
-                document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+                const elements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+                const winH = window.innerHeight;
+                elements.forEach(el => {
                     this.observer.observe(el);
+                    // Immediately activate elements visible in or near viewport on load
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top < winH && rect.bottom > 0) {
+                        el.classList.add('active');
+                    }
                 });
             }
         }
 
         // ========================================
-        // 3D TILT EFFECT
+        // 3D TILT EFFECT (Desktop mouse only)
         // ========================================
         class TiltCard {
             constructor(card) {
                 this.card = card;
+                // Only enable 3D tilt on devices with hover and fine pointer (mouse)
+                const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+                if (!hasFinePointer) return;
+
                 this.cardRect = null;
                 this.centerX = 0;
                 this.centerY = 0;
@@ -2492,9 +2594,11 @@
             }
 
             handleMouseMove(e) {
-                this.cardRect = this.card.getBoundingClientRect();
-                this.centerX = this.cardRect.left + this.cardRect.width / 2;
-                this.centerY = this.cardRect.top + this.cardRect.height / 2;
+                if (!this.cardRect) {
+                    this.cardRect = this.card.getBoundingClientRect();
+                    this.centerX = this.cardRect.left + this.cardRect.width / 2;
+                    this.centerY = this.cardRect.top + this.cardRect.height / 2;
+                }
                 
                 const mouseX = e.clientX;
                 const mouseY = e.clientY;
@@ -2507,11 +2611,15 @@
 
             handleMouseEnter() {
                 this.isActive = true;
+                this.cardRect = this.card.getBoundingClientRect();
+                this.centerX = this.cardRect.left + this.cardRect.width / 2;
+                this.centerY = this.cardRect.top + this.cardRect.height / 2;
                 this.card.style.transition = 'none';
             }
 
             handleMouseLeave() {
                 this.isActive = false;
+                this.cardRect = null;
                 this.card.style.transition = 'transform 0.5s ease';
                 this.card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
             }
@@ -2524,6 +2632,7 @@
             constructor(element) {
                 this.element = element;
                 this.target = parseInt(element.dataset.target);
+                this.suffix = element.dataset.suffix !== undefined ? element.dataset.suffix : '+';
                 this.duration = 2000;
                 this.startTime = null;
                 this.startValue = 0;
@@ -2559,7 +2668,7 @@
                 const easeOut = 1 - Math.pow(1 - progress, 3);
                 const currentValue = Math.floor(this.startValue + (this.target - this.startValue) * easeOut);
                 
-                this.element.textContent = currentValue + '+';
+                this.element.textContent = currentValue + this.suffix;
 
                 if (progress < 1) {
                     requestAnimationFrame(() => this.update());
@@ -2607,35 +2716,55 @@
                 this.navbar = document.getElementById('navbar');
                 this.links = document.querySelectorAll('.nav-links a');
                 this.sections = document.querySelectorAll('section');
+                this.ticking = false;
+                this.cachedOffsets = [];
                 this.init();
             }
 
             init() {
-                window.addEventListener('scroll', () => this.handleScroll());
+                this.updateSectionOffsets();
+                window.addEventListener('resize', () => this.updateSectionOffsets(), { passive: true });
+                window.addEventListener('scroll', () => {
+                    if (!this.ticking) {
+                        requestAnimationFrame(() => {
+                            this.handleScroll();
+                            this.ticking = false;
+                        });
+                        this.ticking = true;
+                    }
+                }, { passive: true });
                 this.handleScroll(); // Initial check
             }
 
+            updateSectionOffsets() {
+                this.cachedOffsets = Array.from(this.sections).map(section => ({
+                    id: section.getAttribute('id'),
+                    top: section.offsetTop - 120
+                }));
+            }
+
             handleScroll() {
+                const scrollY = window.scrollY;
                 // Add scrolled class
-                if (window.scrollY > 50) {
+                if (scrollY > 50) {
                     this.navbar.classList.add('scrolled');
                 } else {
                     this.navbar.classList.remove('scrolled');
                 }
 
-                // Update active link
+                // Update active link using cached offsets (zero forced reflows)
                 let current = '';
-                this.sections.forEach(section => {
-                    const sectionTop = section.offsetTop - 200;
-                    if (window.scrollY >= sectionTop) {
-                        current = section.getAttribute('id');
+                for (let i = 0; i < this.cachedOffsets.length; i++) {
+                    if (scrollY >= this.cachedOffsets[i].top) {
+                        current = this.cachedOffsets[i].id;
                     }
-                });
+                }
 
                 this.links.forEach(link => {
-                    link.classList.remove('active');
                     if (link.getAttribute('href') === `#${current}`) {
                         link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
                     }
                 });
             }
@@ -2656,7 +2785,29 @@
             init() {
                 this.hamburger.addEventListener('click', () => this.toggle());
                 this.links.forEach(link => {
-                    link.addEventListener('click', () => this.close());
+                    link.addEventListener('click', (e) => {
+                        const targetId = link.getAttribute('href');
+                        if (targetId && targetId.startsWith('#')) {
+                            const targetEl = document.querySelector(targetId);
+                            if (targetEl) {
+                                e.preventDefault();
+                                this.close();
+                                // Clean smooth scroll with exact fixed navbar offset
+                                setTimeout(() => {
+                                    const navbarHeight = 75;
+                                    const elementPosition = targetEl.getBoundingClientRect().top + window.scrollY;
+                                    const offsetPosition = elementPosition - navbarHeight;
+                                    window.scrollTo({
+                                        top: Math.max(0, offsetPosition),
+                                        behavior: 'smooth'
+                                    });
+                                    history.pushState(null, null, targetId);
+                                }, 120);
+                                return;
+                            }
+                        }
+                        this.close();
+                    });
                 });
             }
 
@@ -2664,12 +2815,19 @@
                 this.isOpen = !this.isOpen;
                 this.hamburger.classList.toggle('active');
                 this.navLinks.classList.toggle('active');
+                if (this.isOpen) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
             }
 
             close() {
+                if (!this.isOpen) return;
                 this.isOpen = false;
                 this.hamburger.classList.remove('active');
                 this.navLinks.classList.remove('active');
+                document.body.style.overflow = '';
             }
         }
 
@@ -2678,6 +2836,10 @@
         // ========================================
         class RocketCursor {
             constructor() {
+                // If touch device without fine mouse pointer, do NOT initialize RocketCursor or run its loop
+                const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+                if (!hasFinePointer) return;
+
                 this.cursorEl = document.getElementById('rocket-cursor');
                 this.wrapper = this.cursorEl ? this.cursorEl.querySelector('.rocket-wrapper') : null;
                 this.canvas = document.getElementById('rocket-trail-canvas');
