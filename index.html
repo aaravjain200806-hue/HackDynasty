@@ -287,7 +287,7 @@
         .brand-dynasty {
             color: #8F12B5 !important;
             -webkit-text-fill-color: #8F12B5 !important;
-            text-shadow: 0 0 15px rgba(143, 18, 181, 0.5);
+            text-shadow: none !important;
             transition: all 0.3s var(--transition-smooth);
         }
 
@@ -564,12 +564,12 @@
 
         .hero-title .brand-hack {
             color: #FFFFFF;
-            text-shadow: 0 0 35px rgba(255, 255, 255, 0.4);
+            text-shadow: none !important;
         }
 
         .hero-title .brand-dynasty {
             color: #8F12B5;
-            text-shadow: 0 0 60px rgba(143, 18, 181, 0.75), 0 0 25px rgba(143, 18, 181, 0.5);
+            text-shadow: none !important;
         }
 
         .hero-tagline {
@@ -1364,7 +1364,8 @@
 
         @media (max-width: 768px) {
             #constellation-canvas {
-                display: none !important;
+                display: block !important;
+                opacity: 0.65;
             }
 
             section {
@@ -1439,12 +1440,14 @@
                 padding: 1.75rem 1.25rem;
             }
 
-            /* Ultra-smooth mobile reveals without horizontal overflow */
+            /* Ultra-smooth mobile reveals - clean, floating, not messy */
             .reveal,
             .reveal-left,
             .reveal-right {
-                transform: translateY(20px) !important;
-                transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                opacity: 0;
+                transform: translateY(28px) !important;
+                transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                will-change: opacity, transform;
             }
 
             .reveal.active,
@@ -1464,6 +1467,12 @@
                 -webkit-backdrop-filter: blur(8px) !important;
                 background: rgba(14, 3, 20, 0.9) !important;
                 touch-action: pan-y;
+            }
+
+            .project-card:active,
+            .member-card:active {
+                transform: scale(0.985);
+                transition: transform 0.15s ease;
             }
 
             .project-card:hover,
@@ -1654,7 +1663,6 @@
                             <div class="w-full h-full rounded-full overflow-hidden border border-white/20 bg-slate-950">
                                 <img src="assets/aarav-jain.jpg" alt="Aarav Jain" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
                             </div>
-                            <span class="absolute bottom-0 right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-slate-950 shadow-[0_0_8px_rgba(52,211,153,0.9)]"></span>
                         </div>
 
                         <!-- Name -->
@@ -1688,7 +1696,6 @@
                             <div class="w-full h-full rounded-full overflow-hidden border border-white/20 bg-slate-950">
                                 <img src="assets/naitik-jain.jpg" alt="Naitik Jain" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
                             </div>
-                            <span class="absolute bottom-0 right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-slate-950 shadow-[0_0_8px_rgba(52,211,153,0.9)]"></span>
                         </div>
 
                         <!-- Name -->
@@ -1722,7 +1729,6 @@
                             <div class="w-full h-full rounded-full overflow-hidden border border-white/20 bg-slate-950">
                                 <img src="assets/kanishak-jain.jpg" alt="Kanishak Jain" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
                             </div>
-                            <span class="absolute bottom-0 right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-slate-950 shadow-[0_0_8px_rgba(52,211,153,0.9)]"></span>
                         </div>
 
                         <!-- Name -->
@@ -1756,7 +1762,6 @@
                             <div class="w-full h-full rounded-full overflow-hidden border border-white/20 bg-slate-950">
                                 <img src="assets/arhan-jain.jpg" alt="Arhan Jain" class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500">
                             </div>
-                            <span class="absolute bottom-0 right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-slate-950 shadow-[0_0_8px_rgba(52,211,153,0.9)]"></span>
                         </div>
 
                         <!-- Name -->
@@ -2081,7 +2086,6 @@
                     <div class="w-full h-full rounded-full overflow-hidden border-2 border-white/30 bg-slate-950">
                         <img id="modal-avatar" src="" alt="" class="w-full h-full object-cover object-center">
                     </div>
-                    <span class="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-slate-950 shadow-[0_0_10px_rgba(52,211,153,0.9)]"></span>
                 </div>
                 
                 <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-semibold tracking-wider text-purple-300 bg-purple-950/60 border border-purple-500/40 mb-2">
@@ -2193,9 +2197,9 @@
             setupLayers() {
                 this.isMobile = window.innerWidth <= 768;
                 this.layers = this.isMobile ? [
-                    { depth: 0.05, count: 35, minR: 0.7, maxR: 1.4, color: '255,255,255', twinkle: false, streak: false },
-                    { depth: 0.15, count: 20, minR: 1.0, maxR: 1.8, color: '220,130,255', twinkle: false, streak: false },
-                    { depth: 0.32, count: 12, minR: 1.2, maxR: 2.2, color: '184,70,230',  twinkle: false, streak: false }
+                    { depth: 0.05, count: 40, minR: 0.7, maxR: 1.5, color: '255,255,255', twinkle: true, streak: false },
+                    { depth: 0.15, count: 24, minR: 1.0, maxR: 1.8, color: '220,130,255', twinkle: true, streak: false },
+                    { depth: 0.32, count: 14, minR: 1.2, maxR: 2.2, color: '184,70,230',  twinkle: true, streak: false }
                 ] : [
                     { depth: 0.05, count: 175, minR: 0.7, maxR: 1.8, color: '255,255,255', twinkle: true, streak: false },
                     { depth: 0.15, count: 85,  minR: 1.1, maxR: 2.3, color: '220,130,255', twinkle: true, streak: true },
@@ -2342,8 +2346,9 @@
                 this.ctx = this.canvas.getContext('2d');
                 this.particles = [];
                 this.mouse = { x: null, y: null };
-                this.particleCount = 85;
-                this.connectionDistance = 150;
+                this.isMobile = window.innerWidth <= 768;
+                this.particleCount = this.isMobile ? 22 : 85;
+                this.connectionDistance = this.isMobile ? 95 : 150;
                 this.animationId = null;
                 this.isRunning = false;
                 
@@ -2352,20 +2357,18 @@
             }
 
             checkActive() {
-                const shouldRun = window.innerWidth > 768 && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-                if (!shouldRun) {
-                    if (this.animationId) {
-                        cancelAnimationFrame(this.animationId);
-                        this.animationId = null;
-                    }
-                    this.isRunning = false;
-                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                    return false;
-                }
+                const isMobile = window.innerWidth <= 768;
+                const wasMobile = this.isMobile;
+                this.isMobile = isMobile;
+                this.particleCount = isMobile ? 22 : 85;
+                this.connectionDistance = isMobile ? 95 : 150;
+
                 if (!this.isRunning) {
                     this.isRunning = true;
                     this.init();
                     this.animate();
+                } else if (wasMobile !== isMobile) {
+                    this.init();
                 }
                 return true;
             }
@@ -2377,12 +2380,13 @@
                 // Create particles
                 for (let i = 0; i < this.particleCount; i++) {
                     const isWhite = Math.random() < 0.45;
+                    const speed = this.isMobile ? 0.35 : 0.45;
                     this.particles.push({
                         x: Math.random() * this.canvas.width,
                         y: Math.random() * this.canvas.height,
-                        radius: Math.random() * 1.6 + 1.2,
-                        vx: (Math.random() - 0.5) * 0.45,
-                        vy: (Math.random() - 0.5) * 0.45,
+                        radius: this.isMobile ? (Math.random() * 1.2 + 1.0) : (Math.random() * 1.6 + 1.2),
+                        vx: (Math.random() - 0.5) * speed,
+                        vy: (Math.random() - 0.5) * speed,
                         isWhite: isWhite,
                         alpha: isWhite ? 0.85 : 0.88
                     });
@@ -2396,15 +2400,25 @@
 
             setupEventListeners() {
                 window.addEventListener('resize', () => {
-                    if (this.checkActive()) {
-                        this.resize();
-                    }
+                    this.checkActive();
+                    this.resize();
                 }, { passive: true });
 
                 window.addEventListener('mousemove', (e) => {
                     if (!this.isRunning) return;
                     this.mouse.x = e.clientX;
                     this.mouse.y = e.clientY;
+                }, { passive: true });
+
+                window.addEventListener('touchmove', (e) => {
+                    if (!this.isRunning || !e.touches || !e.touches[0]) return;
+                    this.mouse.x = e.touches[0].clientX;
+                    this.mouse.y = e.touches[0].clientY;
+                }, { passive: true });
+
+                window.addEventListener('touchend', () => {
+                    this.mouse.x = null;
+                    this.mouse.y = null;
                 }, { passive: true });
 
                 window.addEventListener('mouseout', () => {
@@ -2428,34 +2442,44 @@
                     if (particle.x < 0 || particle.x > this.canvas.width) particle.vx *= -1;
                     if (particle.y < 0 || particle.y > this.canvas.height) particle.vy *= -1;
 
-                    // Mouse interaction
+                    // Mouse / touch interaction
                     if (this.mouse.x !== null && this.mouse.y !== null) {
                         const dx = this.mouse.x - particle.x;
                         const dy = this.mouse.y - particle.y;
                         const dist = Math.sqrt(dx * dx + dy * dy);
+                        const repelDist = this.isMobile ? 120 : 200;
                         
-                        if (dist < 200) {
-                            const force = (200 - dist) / 200;
+                        if (dist < repelDist) {
+                            const force = (repelDist - dist) / repelDist;
                             particle.x -= dx * force * 0.02;
                             particle.y -= dy * force * 0.02;
                         }
                     }
 
-                    // Draw particle dot with pleasant, normal bright glow
-                    this.ctx.save();
-                    if (particle.isWhite) {
-                        this.ctx.shadowBlur = 4;
-                        this.ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
-                        this.ctx.fillStyle = `rgba(255, 255, 255, ${particle.alpha})`;
+                    // Draw particle dot
+                    if (this.isMobile) {
+                        this.ctx.fillStyle = particle.isWhite 
+                            ? `rgba(255, 255, 255, ${particle.alpha * 0.8})` 
+                            : `rgba(215, 110, 255, ${particle.alpha * 0.8})`;
+                        this.ctx.beginPath();
+                        this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                        this.ctx.fill();
                     } else {
-                        this.ctx.shadowBlur = 5;
-                        this.ctx.shadowColor = 'rgba(184, 59, 224, 0.65)';
-                        this.ctx.fillStyle = `rgba(215, 110, 255, ${particle.alpha})`;
+                        this.ctx.save();
+                        if (particle.isWhite) {
+                            this.ctx.shadowBlur = 4;
+                            this.ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+                            this.ctx.fillStyle = `rgba(255, 255, 255, ${particle.alpha})`;
+                        } else {
+                            this.ctx.shadowBlur = 5;
+                            this.ctx.shadowColor = 'rgba(184, 59, 224, 0.65)';
+                            this.ctx.fillStyle = `rgba(215, 110, 255, ${particle.alpha})`;
+                        }
+                        this.ctx.beginPath();
+                        this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        this.ctx.restore();
                     }
-                    this.ctx.beginPath();
-                    this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-                    this.ctx.fill();
-                    this.ctx.restore();
 
                     // Draw connections
                     for (let j = i + 1; j < this.particles.length; j++) {
@@ -2464,21 +2488,24 @@
                         const distance = Math.sqrt(dx * dx + dy * dy);
 
                         if (distance < this.connectionDistance) {
-                            const opacity = (1 - distance / this.connectionDistance) * 0.45;
+                            const opacity = (1 - distance / this.connectionDistance) * (this.isMobile ? 0.35 : 0.45);
                             this.ctx.beginPath();
                             this.ctx.moveTo(particle.x, particle.y);
                             this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
                             
-                            // Gradient line color: white to vibrant electric purple
-                            const gradient = this.ctx.createLinearGradient(
-                                particle.x, particle.y,
-                                this.particles[j].x, this.particles[j].y
-                            );
-                            gradient.addColorStop(0, `rgba(255, 255, 255, ${opacity})`);
-                            gradient.addColorStop(1, `rgba(196, 75, 245, ${opacity})`);
-                            
-                            this.ctx.strokeStyle = gradient;
-                            this.ctx.lineWidth = 1;
+                            if (this.isMobile) {
+                                this.ctx.strokeStyle = `rgba(184, 59, 224, ${opacity})`;
+                                this.ctx.lineWidth = 0.8;
+                            } else {
+                                const gradient = this.ctx.createLinearGradient(
+                                    particle.x, particle.y,
+                                    this.particles[j].x, this.particles[j].y
+                                );
+                                gradient.addColorStop(0, `rgba(255, 255, 255, ${opacity})`);
+                                gradient.addColorStop(1, `rgba(196, 75, 245, ${opacity})`);
+                                this.ctx.strokeStyle = gradient;
+                                this.ctx.lineWidth = 1;
+                            }
                             this.ctx.stroke();
                         }
                     }
